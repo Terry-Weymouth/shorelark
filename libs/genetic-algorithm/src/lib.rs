@@ -1,3 +1,4 @@
+use std::ops::Index;
 use rand::RngCore;
 // use rand::Rng;
 use rand::seq::SliceRandom;
@@ -10,10 +11,57 @@ impl RouletteWheelSelection {
     }
 }
 
-pub struct GeneticAlgorithm;
+pub struct GeneticAlgorithm<S> {
+    selection_method: S,
+}
 
 pub trait Individual {
+    fn chromosome(&self) -> &Chromosome;
     fn fitness(&self) -> f32;
+}
+
+#[derive(Clone, Debug)]
+pub struct Chromosome {
+    genes: Vec<f32>,
+}
+
+impl Chromosome {
+    pub fn len(&self) -> usize {
+        self.genes.len()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &f32> {
+        self.genes.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut f32> {
+        self.genes.iter_mut()
+    }
+}
+
+impl Index<usize> for Chromosome {
+    type Output = f32;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.genes[index]
+    }
+}
+
+impl FromIterator<f32> for Chromosome {
+    fn from_iter<T: IntoIterator<Item = f32>>(iter: T) -> Self {
+        Self {
+            genes: iter.into_iter().collect(),
+        }
+    }
+}
+
+impl IntoIterator for Chromosome {
+    type Item = f32;
+    type IntoIter = std::vec::IntoIter<f32>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.genes.into_iter()
+    }
 }
 
 pub trait SelectionMethod {
@@ -41,20 +89,39 @@ impl SelectionMethod for RouletteWheelSelection {
     }
 }
 
-impl GeneticAlgorithm {
-    pub fn new() -> Self {
-        Self
+impl<S> GeneticAlgorithm<S>
+where
+    S: SelectionMethod
+{
+    pub fn new(selection_method: S) -> Self {
+        Self { selection_method}
     }
 
-    pub fn evolve<I>(&self, population: &[I]) -> Vec<I> {
+    pub fn evolve<I>(
+        &self,
+        rng: &mut dyn RngCore,
+        population: &[I],
+    ) -> Vec<I>
+        where I: Individual
+    {
         assert!(!population.is_empty());
         (0..population.len())
-        .map(|_| {
-            // TODO selection
-            // TODO crossover
-            // TODO mutation
-            todo!()
-        });
+            .map(|_| {
+                let parent_a = self
+                    .selection_method
+                    .select(rng, &population)
+                    .chromosome();
+
+                let parent_b = self
+                    .selection_method
+                    .select(rng, &population)
+                    .chromosome();
+
+                // TODO crossover
+                // TODO mutation
+                // TODO convert `Chromosome` back into `Individual`
+                todo!()
+            });
 //        .collect();
         todo!()
     }
@@ -65,14 +132,10 @@ impl GeneticAlgorithm {
 
 #[cfg(test)]
 mod tests {
-    use crate::GeneticAlgorithm;
-    use crate::Individual;
-    use crate::SelectionMethod;
-    use crate::RouletteWheelSelection;
-    use rand::SeedableRng;
-    use std::iter::FromIterator;
-    use std::collections::BTreeMap;
+    use super::*;
     use rand_chacha::ChaCha8Rng;
+    use rand::SeedableRng;
+    use std::collections::BTreeMap;
 
     #[derive(Clone, Debug)]
     pub struct TestIndividual {
@@ -86,6 +149,9 @@ mod tests {
     }
 
     impl Individual for TestIndividual {
+        fn chromosome(&self) -> &Chromosome {
+            panic!("not supported for TestIndividual")
+        }
         fn fitness(&self) -> f32 {
             self.fitness
         }
@@ -127,4 +193,105 @@ mod tests {
 
         assert_eq!(actual_histogram, expected_histogram);
     }
+
+    fn chromosome() -> Chromosome {
+        Chromosome {
+            genes: vec![3.0, 1.0, 2.0],
+        }
+    }
+
+    mod len {
+        use super::*;
+
+        #[test]
+        fn test() {
+            assert_eq!(chromosome().len(), 3);
+        }
+    }
+
+    mod iter {
+        use super::*;
+
+        #[test]
+        fn test() {
+            let chromosome = chromosome();
+            let genes: Vec<_> = chromosome.iter().collect();
+
+            assert_eq!(genes.len(), 3);
+            assert_eq!(genes[0], &3.0);
+            assert_eq!(genes[1], &1.0);
+            assert_eq!(genes[2], &2.0);
+        }
+    }
+
+    mod iter_mut {
+        use super::*;
+
+        #[test]
+        fn test() {
+            let mut chromosome = chromosome();
+
+            chromosome.iter_mut().for_each(|gene| {
+                *gene *= 10.0;
+            });
+
+            let genes: Vec<_> = chromosome.iter().collect();
+
+            assert_eq!(genes.len(), 3);
+            assert_eq!(genes[0], &30.0);
+            assert_eq!(genes[1], &10.0);
+            assert_eq!(genes[2], &20.0);
+        }
+    }
+
+    mod index {
+        use super::*;
+
+        #[test]
+        fn test() {
+            let chromosome = Chromosome {
+                genes: vec![3.0, 1.0, 2.0],
+            };
+
+            assert_eq!(chromosome[0], 3.0);
+            assert_eq!(chromosome[1], 1.0);
+            assert_eq!(chromosome[2], 2.0);
+        }
+    }
+
+    mod from_iterator {
+        use super::*;
+
+        #[test]
+        fn test() {
+            let chromosome: Chromosome =
+                vec![3.0, 1.0, 2.0]
+                    .into_iter()
+                    .collect();
+
+            assert_eq!(chromosome[0], 3.0);
+            assert_eq!(chromosome[1], 1.0);
+            assert_eq!(chromosome[2], 2.0);
+        }
+    }
+
+    mod into_iterator {
+        use super::*;
+
+        #[test]
+        fn test() {
+            let chromosome = Chromosome {
+                genes: vec![3.0, 1.0, 2.0],
+            };
+
+            let genes: Vec<_> = chromosome.into_iter().collect();
+
+            assert_eq!(genes.len(), 3);
+            assert_eq!(genes[0], 3.0);
+            assert_eq!(genes[1], 1.0);
+            assert_eq!(genes[2], 2.0);
+        }
+    }
 }
+
+
