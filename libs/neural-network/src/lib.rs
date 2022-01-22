@@ -10,12 +10,15 @@ pub struct LayerTopology {
 
 impl Network {
 
-    pub fn random(layers: &[LayerTopology]) -> Self {
+    pub fn random(
+        layers: &[LayerTopology],
+        rng: &mut dyn rand::RngCore,
+    ) -> Self {
         assert!(layers.len() > 1);
         let layers = layers
         .windows(2)
         .map(|layers| {
-            Layer::random(layers[0].neurons, layers[1].neurons)
+            Layer::random(rng,layers[0].neurons, layers[1].neurons)
         })
         .collect();
 
@@ -37,11 +40,12 @@ struct Layer {
 impl Layer {
 
     pub fn random(
+        rng: &mut dyn rand::RngCore,
         input_neurons: usize,
         output_neurons: usize,
     ) -> Self {
         let neurons = (0..output_neurons)
-        .map(|_| Neuron::random(input_neurons))
+        .map(|_| Neuron::random(rng, input_neurons))
         .collect();
 
         Self { neurons }
@@ -60,10 +64,11 @@ struct Neuron {
     weights: Vec<f32>,
 }
 
-
 impl Neuron {
-    pub fn random(output_size: usize) -> Self {
-        let mut rng = rand::thread_rng();
+    pub fn random(
+        rng: &mut dyn rand::RngCore,
+        output_size: usize,
+    ) -> Self {
         let bias = rng.gen_range(-1.0..=1.0);
 
         let weights = (0..output_size)
@@ -85,40 +90,80 @@ impl Neuron {
 }
 
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//
-//     mod random {
-//         use super::*;
-//         use rand::SeedableRng;
-//         use rand_chacha::ChaCha8Rng;
-//         use approx;
-//
-//         #[test]
-//         fn test() {
-//             // Because we always use the same seed, our `rng` in here will
-//             // always return the same set of values
-//             let mut rng = ChaCha8Rng::from_seed(Default::default());
-//             let neuron = Neuron::random(&mut rng, 4);
-//
-//             assert_eq!(neuron.bias, 0.0);
-//             assert_eq!(neuron.weights, &[0.0, 0.0, 0.0, 0.0]);
-//         }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand_chacha::ChaCha8Rng;
+    use rand::SeedableRng;
+    use approx;
 
-//         #[test]
-//         fn test() {
-//             let mut rng = ChaCha8Rng::from_seed(Default::default());
-//             let neuron = Neuron::random(&mut rng, 4);
-//
-//             assert_relative_eq!(neuron.bias, -0.6255188);
-//
-//             assert_relative_eq!(neuron.weights.as_slice(), [
-//                 0.67383957,
-//                 0.8181262,
-//                 0.26284897,
-//                 0.5238807,
-//             ].as_ref());
-//         }
-//     }
-// }
+    mod neuron {
+        use super::*;
+
+        mod random {
+            use super::*;
+
+            #[test]
+            fn test() {
+                let mut rng = ChaCha8Rng::from_seed(Default::default());
+                let neuron = Neuron::random(&mut rng, 4);
+
+                approx::assert_relative_eq!(neuron.bias, -0.6255188);
+
+                approx::assert_relative_eq!(neuron.weights.as_slice(), [
+                    0.67383957,
+                    0.8181262,
+                    0.26284897,
+                    0.5238807,
+                ].as_ref());
+            }
+        }
+
+        mod propagate{
+            use super::*;
+
+            #[test]
+            fn test() {
+                let neuron = Neuron {
+                    bias: 0.5,
+                    weights: vec![-0.3, 0.8],
+                };
+
+                // Ensures `.max()` (our ReLU) works:
+                approx::assert_relative_eq!(
+                    neuron.propagate(&[-10.0, -10.0]),
+                    0.0,
+                );
+
+                // `0.5` and `1.0` chosen by a fair dice roll:
+                approx::assert_relative_eq!(
+                    neuron.propagate(&[0.5, 1.0]),
+                    (-0.3 * 0.5) + (0.8 * 1.0) + 0.5,
+                );
+
+                // We could've written `1.15` right away, but showing the entire
+                // formula makes our intentions clearer
+            }
+        }
+    }
+
+    mod layer {
+//        use super::*;
+
+        #[test]
+        fn test() {
+            // left as an exercise for the reader
+//            todo ! ();
+        }
+    }
+
+    mod network {
+//        use super::*;
+
+        #[test]
+        fn test() {
+            // left as an exercise for the reader
+//            todo ! ();
+        }
+    }
+}
