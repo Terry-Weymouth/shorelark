@@ -2,6 +2,7 @@ use std::ops::Index;
 use rand::RngCore;
 // use rand::Rng;
 use rand::seq::SliceRandom;
+use std::iter::FromIterator;
 
 pub struct RouletteWheelSelection;
 
