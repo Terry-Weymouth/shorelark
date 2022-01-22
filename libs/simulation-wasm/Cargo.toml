@@ -1,0 +1,11 @@
+cargo-features = ["edition2021"]
+
+[package]
+name = "lib-simulation-wasm"
+version = "0.1.0"
+authors = ["Terry Weymouth <weymouth@umich.edu>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
