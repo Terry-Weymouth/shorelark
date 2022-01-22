@@ -271,140 +271,149 @@ mod tests {
             }
         }
     }
-    #[test]
-    fn test() {
-        let method = RouletteWheelSelection::new();
-        let mut rng = ChaCha8Rng::from_seed(Default::default());
 
-        let population = vec![
-            TestIndividual::new(2.0),
-            TestIndividual::new(1.0),
-            TestIndividual::new(4.0),
-            TestIndividual::new(3.0),
-        ];
-
-        let mut actual_histogram = BTreeMap::new();
-
-        //               there is nothing special about this thousand;
-        //          v--v a number as low as fifty might do the trick, too
-        for _ in 0..1000 {
-            let fitness = method
-                .select(&mut rng, &population)
-                .fitness() as i32;
-
-            *actual_histogram
-                .entry(fitness)
-                .or_insert(0) += 1;
-        }
-
-        let expected_histogram = BTreeMap::from_iter(vec![
-            // (fitness, how many times this fitness has been chosen)
-            (1, 98),  // 'near' 100
-            (2, 202), // 'near' 200
-            (3, 278), // 'near' 300
-            (4, 422), // 'near' 400
-        ]);
-
-        assert_eq!(actual_histogram, expected_histogram);
-    }
-
-    fn chromosome() -> Chromosome {
-        Chromosome {
-            genes: vec![3.0, 1.0, 2.0],
-        }
-    }
-
-    mod len {
+    mod select{
         use super::*;
-
         #[test]
         fn test() {
-            assert_eq!(chromosome().len(), 3);
+            let method = RouletteWheelSelection::new();
+            let mut rng = ChaCha8Rng::from_seed(Default::default());
+
+            let population = vec![
+                TestIndividual::new(2.0),
+                TestIndividual::new(1.0),
+                TestIndividual::new(4.0),
+                TestIndividual::new(3.0),
+            ];
+
+            let mut actual_histogram = BTreeMap::new();
+
+            //               there is nothing special about this thousand;
+            //          v--v a number as low as fifty might do the trick, too
+            for _ in 0..1000 {
+                let fitness = method
+                    .select(&mut rng, &population)
+                    .fitness() as i32;
+
+                *actual_histogram
+                    .entry(fitness)
+                    .or_insert(0) += 1;
+            }
+
+            let expected_histogram = BTreeMap::from_iter(vec![
+                // (fitness, how many times this fitness has been chosen)
+                (1, 98),  // 'near' 100
+                (2, 202), // 'near' 200
+                (3, 278), // 'near' 300
+                (4, 422), // 'near' 400
+            ]);
+
+            assert_eq!(actual_histogram, expected_histogram);
         }
+
     }
 
-    mod iter {
+    mod chromosome {
         use super::*;
-
-        #[test]
-        fn test() {
-            let chromosome = chromosome();
-            let genes: Vec<_> = chromosome.iter().collect();
-
-            assert_eq!(genes.len(), 3);
-            assert_eq!(genes[0], &3.0);
-            assert_eq!(genes[1], &1.0);
-            assert_eq!(genes[2], &2.0);
-        }
-    }
-
-    mod iter_mut {
-        use super::*;
-
-        #[test]
-        fn test() {
-            let mut chromosome = chromosome();
-
-            chromosome.iter_mut().for_each(|gene| {
-                *gene *= 10.0;
-            });
-
-            let genes: Vec<_> = chromosome.iter().collect();
-
-            assert_eq!(genes.len(), 3);
-            assert_eq!(genes[0], &30.0);
-            assert_eq!(genes[1], &10.0);
-            assert_eq!(genes[2], &20.0);
-        }
-    }
-
-    mod index {
-        use super::*;
-
-        #[test]
-        fn test() {
-            let chromosome = Chromosome {
+        fn chromosome() -> Chromosome {
+            Chromosome {
                 genes: vec![3.0, 1.0, 2.0],
-            };
-
-            assert_eq!(chromosome[0], 3.0);
-            assert_eq!(chromosome[1], 1.0);
-            assert_eq!(chromosome[2], 2.0);
+            }
         }
-    }
 
-    mod from_iterator {
-        use super::*;
+        mod len {
+            use super::*;
 
-        #[test]
-        fn test() {
-            let chromosome: Chromosome =
-                vec![3.0, 1.0, 2.0]
-                    .into_iter()
-                    .collect();
-
-            assert_eq!(chromosome[0], 3.0);
-            assert_eq!(chromosome[1], 1.0);
-            assert_eq!(chromosome[2], 2.0);
+            #[test]
+            fn test() {
+                assert_eq!(chromosome().len(), 3);
+            }
         }
-    }
 
-    mod into_iterator {
-        use super::*;
+        mod iter {
+            use super::*;
 
-        #[test]
-        fn test() {
-            let chromosome = Chromosome {
-                genes: vec![3.0, 1.0, 2.0],
-            };
+            #[test]
+            fn test() {
+                let chromosome = chromosome();
+                let genes: Vec<_> = chromosome.iter().collect();
 
-            let genes: Vec<_> = chromosome.into_iter().collect();
-
-            assert_eq!(genes.len(), 3);
-            assert_eq!(genes[0], 3.0);
-            assert_eq!(genes[1], 1.0);
-            assert_eq!(genes[2], 2.0);
+                assert_eq!(genes.len(), 3);
+                assert_eq!(genes[0], &3.0);
+                assert_eq!(genes[1], &1.0);
+                assert_eq!(genes[2], &2.0);
+            }
         }
+
+        mod iter_mut {
+            use super::*;
+
+            #[test]
+            fn test() {
+                let mut chromosome = chromosome();
+
+                chromosome.iter_mut().for_each(|gene| {
+                    *gene *= 10.0;
+                });
+
+                let genes: Vec<_> = chromosome.iter().collect();
+
+                assert_eq!(genes.len(), 3);
+                assert_eq!(genes[0], &30.0);
+                assert_eq!(genes[1], &10.0);
+                assert_eq!(genes[2], &20.0);
+            }
+        }
+
+        mod index {
+            use super::*;
+
+            #[test]
+            fn test() {
+                let chromosome = Chromosome {
+                    genes: vec![3.0, 1.0, 2.0],
+                };
+
+                assert_eq!(chromosome[0], 3.0);
+                assert_eq!(chromosome[1], 1.0);
+                assert_eq!(chromosome[2], 2.0);
+            }
+        }
+
+        mod from_iterator {
+            use super::*;
+
+            #[test]
+            fn test() {
+                let chromosome: Chromosome =
+                    vec![3.0, 1.0, 2.0]
+                        .into_iter()
+                        .collect();
+
+                assert_eq!(chromosome[0], 3.0);
+                assert_eq!(chromosome[1], 1.0);
+                assert_eq!(chromosome[2], 2.0);
+            }
+        }
+
+        mod into_iterator {
+            use super::*;
+
+            #[test]
+            fn test() {
+                let chromosome = Chromosome {
+                    genes: vec![3.0, 1.0, 2.0],
+                };
+
+                let genes: Vec<_> = chromosome.into_iter().collect();
+
+                assert_eq!(genes.len(), 3);
+                assert_eq!(genes[0], 3.0);
+                assert_eq!(genes[1], 1.0);
+                assert_eq!(genes[2], 2.0);
+            }
+        }
+
     }
 
     mod crossover {
