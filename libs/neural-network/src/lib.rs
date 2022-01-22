@@ -152,8 +152,7 @@ mod tests {
 
         #[test]
         fn test() {
-            // left as an exercise for the reader
-//            todo ! ();
+            // left as an exercise for the reader todo!();
         }
     }
 
@@ -162,8 +161,7 @@ mod tests {
 
         #[test]
         fn test() {
-            // left as an exercise for the reader
-//            todo ! ();
+            // left as an exercise for the reader todo!();
         }
     }
 }
