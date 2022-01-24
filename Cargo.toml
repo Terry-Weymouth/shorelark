@@ -1,4 +1,6 @@
 [workspace]
 members = [
-    "libs/*", # look má, wildcards!
+    "libs/genetic-algorithm",
+    "libs/neural-network",
+    "libs/simulation"
 ]
