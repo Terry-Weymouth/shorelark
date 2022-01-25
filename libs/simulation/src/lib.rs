@@ -2,6 +2,7 @@
 pub use self::{animal::*, food::*, world::*};
 
 mod animal;
+mod eye;
 mod food;
 mod world;
 
