@@ -6,3 +6,9 @@ Based on a simple application of a Genetic Algorithm to a weights of a Neural Ne
 
 Captured here, mostly, so that I can switch among on multiple computers (home, portable, etc.).
 
+Note: To get the 'wasm-pack build' to work, I had to add the following to the lib.rs file of
+the source for 'bumpalo-3.9.1' (in ~/.cargo/registry/src/...):
+
+`#![feature(extended_key_value_attributes)]`
+
+(noted here, as it is not in this GitHub projec)

@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Terry Weymouth <weymouth@umich.edu>"]
 edition = "2018"
 
-[workspace]
+[workspace]  # required to remove this module from the cargo build; which produces errors!??
 
 [lib]
 crate-type = ["cdylib"]
