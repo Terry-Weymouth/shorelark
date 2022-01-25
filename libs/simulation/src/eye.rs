@@ -7,9 +7,9 @@ const CELLS: usize = 9;
 
 #[derive(Debug)]
 pub struct Eye {
-    fov_range: f32,
-    fov_angle: f32,
-    cells: usize,
+    crate fov_range: f32,
+    crate fov_angle: f32,
+    crate cells: usize,
 }
 
 impl Eye {
