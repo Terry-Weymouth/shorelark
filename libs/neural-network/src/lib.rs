@@ -26,10 +26,6 @@ impl Network {
         Self { layers }
     }
 
-    fn new (layers: Vec<Layer>) -> Self {
-        Self { layers }
-    }
-
     pub fn propagate(&self, inputs: Vec<f32>) -> Vec<f32> {
          self.layers
         .iter()
@@ -93,12 +89,6 @@ impl Layer {
         Self { neurons }
     }
 
-    fn new( neurons: Vec<Neuron> ) -> Self {
-        Self {
-            neurons,
-        }
-    }
-
     pub fn from_weights(
         input_size: usize,
         output_size: usize,
@@ -138,10 +128,6 @@ impl Neuron {
         Self { bias, weights }
     }
 
-    fn new(bias: f32, weights: Vec<f32>) -> Self {
-        Self { bias, weights }
-    }
-
     pub fn from_weights(
         output_neurons: usize,
         weights: &mut dyn Iterator<Item = f32>,
@@ -173,6 +159,26 @@ mod tests {
     use rand_chacha::ChaCha8Rng;
     use rand::SeedableRng;
     use approx;
+
+    impl Network {
+        fn new (layers: Vec<Layer>) -> Self {
+            Self { layers }
+        }
+    }
+
+    impl Layer {
+        fn new( neurons: Vec<Neuron> ) -> Self {
+            Self {
+                neurons,
+            }
+        }
+    }
+
+    impl Neuron {
+        fn new(bias: f32, weights: Vec<f32>) -> Self {
+            Self { bias, weights }
+        }
+    }
 
     mod neuron {
         use super::*;
