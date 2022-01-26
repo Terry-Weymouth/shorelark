@@ -32,6 +32,9 @@ impl Network {
         .fold(inputs, |inputs, layer| layer.propagate(inputs))
     }
 
+    pub fn weights(&self) -> Vec<f32> {
+        todo!()
+    }
 }
 
 #[derive(Debug)]
@@ -167,4 +170,5 @@ mod tests {
             // left as an exercise for the reader todo!();
         }
     }
+
 }

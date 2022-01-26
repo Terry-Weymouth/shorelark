@@ -2,12 +2,14 @@
 pub use self::{animal::*, eye::*, food::*, world::*};
 
 mod animal;
+mod animal_individual;
 mod eye;
 mod food;
 mod world;
 
 use lib_genetic_algorithm as ga;
 use lib_neural_network as nn;
+use self::animal_individual::*;
 use nalgebra as na;
 use rand::{Rng, RngCore};
 use std::f32::consts::FRAC_PI_2;
@@ -59,22 +61,23 @@ impl Simulation {
     fn evolve(&mut self, rng: &mut dyn RngCore) {
         self.age = 0;
 
-        // Step 1: Prepare birdies to be sent into the genetic algorithm
-        // let current_population = todo!();
+        let current_population: Vec<_> = self
+            .world
+            .animals
+            .iter()
+            .map(AnimalIndividual::from_animal)
+            .collect();
 
-        // Step 2: Evolve birdies
-        // let evolved_population = self.ga.evolve(
-        //    rng,
-        //     &current_population,
-        //);
+        let evolved_population = self.ga.evolve(
+            rng,
+            &current_population,
+        );
 
-        // Step 3: Bring birdies back from the genetic algorithm
-        // self.world.animals = todo!();
+        self.world.animals = evolved_population
+            .into_iter()
+            .map(|individual| individual.into_animal(rng))
+            .collect();
 
-        // Step 4: Restart foods
-        //
-        // (this is not strictly necessary, but it allows to easily spot
-        // when the evolution happens - so it's more of a UI thing.)
         for food in &mut self.world.foods {
             food.position = rng.gen();
         }
@@ -89,6 +92,7 @@ impl Simulation {
                 );
 
                 if distance <= 0.01 {
+                    animal.satiation += 1;
                     food.position = rng.gen();
                 }
             }
