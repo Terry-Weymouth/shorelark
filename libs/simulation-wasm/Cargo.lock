@@ -80,6 +80,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
+name = "lib-genetic-algorithm"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "rand",
+]
+
+[[package]]
 name = "lib-neural-network"
 version = "0.1.0"
 dependencies = [
@@ -90,6 +98,7 @@ dependencies = [
 name = "lib-simulation"
 version = "0.1.0"
 dependencies = [
+ "lib-genetic-algorithm",
  "lib-neural-network",
  "nalgebra",
  "rand",

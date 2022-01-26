@@ -10,5 +10,6 @@ edition = "2018"
 test-case = "1.1"
 nalgebra = { version = "0.26", features = ["rand-no-std"] }
 rand = "0.8"
+lib-genetic-algorithm = { path = "../genetic-algorithm"}
 lib-neural-network = { path = "../neural-network" }
 
