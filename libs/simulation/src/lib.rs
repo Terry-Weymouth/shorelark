@@ -1,5 +1,5 @@
 #![feature(crate_visibility_modifier)]
-pub use self::{animal::*, food::*, world::*};
+pub use self::{animal::*, eye::*, food::*, world::*};
 
 mod animal;
 mod eye;
