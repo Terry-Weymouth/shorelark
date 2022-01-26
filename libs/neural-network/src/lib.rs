@@ -12,8 +12,8 @@ pub struct LayerTopology {
 impl Network {
 
     pub fn random(
-        layers: &[LayerTopology],
         rng: &mut dyn rand::RngCore,
+        layers: &[LayerTopology],
     ) -> Self {
         assert!(layers.len() > 1);
         let layers = layers
