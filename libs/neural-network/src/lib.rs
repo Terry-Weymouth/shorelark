@@ -26,6 +26,10 @@ impl Network {
         Self { layers }
     }
 
+    fn new (layers: Vec<Layer>) -> Self {
+        Self { layers }
+    }
+
     pub fn propagate(&self, inputs: Vec<f32>) -> Vec<f32> {
          self.layers
         .iter()
@@ -56,6 +60,12 @@ impl Layer {
         Self { neurons }
     }
 
+    fn new( neurons: Vec<Neuron> ) -> Self {
+        Self {
+            neurons,
+        }
+    }
+
     fn propagate(&self, inputs: Vec<f32>) -> Vec<f32> {
         self.neurons
             .iter()
@@ -81,6 +91,10 @@ impl Neuron {
             .map(|_| rng.gen_range(-1.0..=1.0))
             .collect();
 
+        Self { bias, weights }
+    }
+
+    fn new(bias: f32, weights: Vec<f32>) -> Self {
         Self { bias, weights }
     }
 
@@ -150,25 +164,59 @@ mod tests {
                 // We could've written `1.15` right away, but showing the entire
                 // formula makes our intentions clearer
             }
+
+            #[test]
+            fn test_with_new() {
+                let neuron = Neuron::new(0.5,vec![-0.3, 0.8]);
+                approx::assert_relative_eq!(
+                    neuron.propagate(&[-10.0, -10.0]),
+                    0.0,
+                );
+                approx::assert_relative_eq!(
+                    neuron.propagate(&[0.5, 1.0]),
+                    (-0.3 * 0.5) + (0.8 * 1.0) + 0.5,
+                );
+            }
         }
     }
 
     mod layer {
-//        use super::*;
+        use super::*;
 
-        #[test]
-        fn test() {
-            // left as an exercise for the reader todo!();
+        mod propagate {
+            use super::*;
+            #[test]
+            fn test() {
+                let layer = Layer::new(
+                    vec![
+                        Neuron::new(0.1, vec![0.2, 0.3, 0.4]),
+                        Neuron::new(- 0.1, vec![0.2, 0.3, 0.4]),
+                    ]
+                );
+
+                let results = layer.propagate(vec![0.5, 1.0]);
+                let actual = vec![0.5 as f32, 0.3];
+                approx::assert_relative_eq!(actual.as_slice(), results.as_slice())
+            }
         }
     }
 
     mod network {
-//        use super::*;
+        use super::*;
+        mod propagate {
+            use super::*;
 
-        #[test]
-        fn test() {
-            // left as an exercise for the reader todo!();
+            #[test]
+            fn test() {
+                let network = Network::new(vec![
+                    Layer::new(vec![Neuron::new(0.1, vec![0.2, 0.3, 0.4])]),
+                    Layer::new(vec![Neuron::new(0.5, vec![0.6, 0.7, 0.8])]),
+                ]);
+
+                let results = network.propagate(vec![0.2, 0.3]);
+                let actual = vec![0.638 as f32];
+                approx::assert_relative_eq!(actual.as_slice(), results.as_slice());
+            }
         }
     }
-
 }
