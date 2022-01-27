@@ -2,6 +2,9 @@ import * as sim from "lib-simulation-wasm";
 
 const simulation = new sim.Simulation();
 console.log(simulation.world())
+document.getElementById('train').onclick = function() {
+    console.log(simulation.train());
+};
 
 const viewport = document.getElementById('viewport');
 const viewportWidth = viewport.width;
